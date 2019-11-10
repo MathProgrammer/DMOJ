@@ -1,0 +1,77 @@
+The range of the element is very small. 
+
+We will maintain 20 segment trees. 
+
+Each segment tree will correspond to an element and will hold it's frequency in the range. 
+
+To find out the k-th largest element in [L, R], we will start from the greatest element and keep adding frequency[i] in the range [L, R] till we reach k.The element which pushes the frequency sum >= K, is the element that we want.  
+
+-----
+
+int get_k_best(int left, int right, int k)
+{
+    for(int i = MAX_VALUE; i >= 0; i--)
+    {
+        int frequency_i = get_sum(i, 1, 1, no_of_elements, left, right);
+
+        if(frequency_i >= k)
+        {
+            return i;
+        }
+
+        k -= frequency_i;
+    }
+}
+
+----
+
+int get_sum(int x, int n, int left, int right, int query_left, int query_right)
+{
+    if(right < left || query_right < left || right < query_left)
+        return 0;
+
+    if(query_left <= left && right <= query_right)
+    {
+        return frequency_tree[n][x];
+    }
+
+    int mid = (left + right)/2;
+    int left_sum = get_sum(x, LEFT(n), left, mid, query_left, query_right);
+    int right_sum = get_sum(x, RIGHT(n), mid + 1, right, query_left, query_right);
+
+    return (left_sum + right_sum);
+}
+
+void update(int x, int n, int left, int right, int position, int value)
+{
+    if(right < position || position < left)
+        return;
+
+    if(left == right)
+    {
+        frequency_tree[n][x] = value;
+        return;
+    }
+
+    int mid = (left + right)/2;
+
+    update(x, LEFT(n), left, mid, position, value);
+    update(x, RIGHT(n), mid + 1, right, position, value);
+
+    frequency_tree[n][x] = frequency_tree[LEFT(n)][x] + frequency_tree[RIGHT(n)][x];
+}
+
+void perform_update(int position, int new_value)
+{
+    int current_value = A[position];
+
+    if(current_value == new_value)
+    {
+        return;
+    }
+
+    update(current_value, 1, 1, no_of_elements, position, 0);
+
+    A[position] = new_value;
+    update(new_value, 1, 1, no_of_elements, position, 1);
+}
