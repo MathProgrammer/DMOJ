@@ -1,0 +1,28 @@
+We need to calculate the medians as requested in the question. 
+
+-----
+
+int main()
+{
+    int no_of_elements;
+    cin >> no_of_elements;
+
+    vector <double> A(no_of_elements + 1, 0);
+    for(int i = 1; i <= no_of_elements; i++)
+        cin >> A[i];
+
+    sort(all(A));
+
+    double median_1, median, median_2;
+
+    median = (no_of_elements%2 == 1 ? A[no_of_elements/2 + 1] : (A[no_of_elements/2] + A[no_of_elements/2 + 1])/2);
+
+    int half = no_of_elements/2;
+
+    median_1 = (half%2 == 1 ? A[half/2 + 1] : (A[half/2] + A[half/2 + 1])/2);
+
+    median_2 = (half%2 == 1 ? A[no_of_elements - half/2] : (A[no_of_elements - half/2] + A[no_of_elements - half/2 + 1])/2);
+
+    cout << A[1] << " " << A[no_of_elements] << " " << setprecision(7) << median_1 << " " << setprecision(7) << median << " " << setprecision(7) << median_2;
+    return 0;
+}
