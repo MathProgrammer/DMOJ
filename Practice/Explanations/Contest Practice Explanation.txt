@@ -1,0 +1,83 @@
+# Condensing the $20$ dimensions to a single value
+
+- Let $f(a_1, a_2, \dots, a_p)$ be the number of people $b$ with score $b_i \ge a_i$
+- We can compute a type of suffix sum over this in order to get the answer.
+- We have to be very careful not to overcount or count the same state multiple times. So, we will update this table in phases, updating only one digit at a time.
+
+## Beautiful base $Q$ idea
+
+- Now, that we have the Combinatorial idea, let us think about how to do it practically since having an array with $20$ indices is not feasible.
+- Let us write down each tuple in base $Q$. Since $Q^P \le 2 \times 10^5$, we can have an array and each tuple is a base $Q$ integer of length $P$
+
+### Suppose $N = 343$ 
+
+Here is an example of how we count without overcounting
+
+- Let us suppose that we are dealing with base $10$ and we have $343$
+    - First, we will update $f(343) = f(344) + f(345) + \dots + f(349)$
+    - Then, we will update $f(343) = f(353) + f(363) + \dots + f(393)$
+        - Of course, each of these states contains $7$ states because of the previous pass.
+    - Then, we will update $f(343) = f(443) + f(543) + \dots + f(943)$
+        - Each of these states already contains $6 \times 7$ states because of the previous passes.
+        
+ ------
+ 
+ const int MAX_VALUE = 2e5 + 5;
+vector <int> suffix_sum(MAX_VALUE, 0);
+
+int read_person(int length, int base)
+{
+    int effective_no = 0;
+    vector <int> D(length + 1);
+    for(int i = 1; i <= length; i++)
+    {
+        cin >> D[i];
+    }
+
+    for(int i = 1; i <= length; i++)
+    {
+        effective_no = (effective_no*base) + D[i];
+    }
+
+    return effective_no;
+}
+
+int main()
+{
+    int no_of_people, no_of_problems, maximum_score;
+    cin >> no_of_problems >> maximum_score >> no_of_people;
+
+    for(int i = 1; i <= no_of_people; i++)
+    {
+        int effective_no = read_person(no_of_problems, maximum_score); //cout << "Number = " << effective_no << "\n"; print(effective_no);
+
+        suffix_sum[effective_no]++;
+    }
+
+    for(int base = 1, d = no_of_problems; d >= 1; d--, base *= maximum_score)
+    {
+        for(int score = MAX_VALUE - 1; score >= 0; score--)
+        {
+            int digit_d = (score/base)%maximum_score;
+
+            if(digit_d == maximum_score - 1 || score + base > MAX_VALUE)
+            {
+                continue;
+            }
+
+            suffix_sum[score] += suffix_sum[score + base];
+        }
+    }
+
+    int no_of_queries;
+    cin >> no_of_queries;
+
+    for(int i = 1; i <= no_of_queries; i++)
+    {
+        int effective_no = read_person(no_of_problems, maximum_score);
+
+        cout << suffix_sum[effective_no] << "\n";
+    }
+
+    return 0;
+}
